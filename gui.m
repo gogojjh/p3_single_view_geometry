@@ -77,10 +77,11 @@ img_ori = imread(['image/', filename, '.png']);
 figure(2);
 imshow(img_ori);
 hold on;
-mat_name = [filename, '_line_xyz.mat'];
+mat_name = ['param/', filename, '_line_xyz.mat'];
 if exist(mat_name,'file') ~= 0
     load(mat_name);
 end
+drawallline(line_xaxes, line_yaxes, line_zaxes);
 
 %%
 function addlinex_Callback(hObject, eventdata, handles)
@@ -152,14 +153,89 @@ function save_Callback(hObject, eventdata, handles)
 global line_xaxes;
 global line_yaxes;
 global line_zaxes;
-save('line_xyz_0410.mat', 'line_xaxes', 'line_yaxes', 'line_zaxes');
+global filename;
+mat_name = ['param/', filename, '_line_xyz.mat'];
+save(mat_name, 'line_xaxes', 'line_yaxes', 'line_zaxes');
 
 %%
 function computevanishpoint_Callback(hObject, eventdata, handles)
-% hObject    handle to computevanishpoint (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
+global line_xaxes;
+global line_yaxes;
+global line_zaxes;
+global img_ori;
+figure(3);
+imshow(img_ori);
+axis([-4000, 4000, -4000, 4000]);
+hold on;
+w = 1;
+vp_x = [];
+vp_y = [];
+vp_z = [];
 
+% property of vanishing point
+% l x = 0; x'l' = 0
+% x'l'lx = 0
+% min(x'l1'l1x + x'l2'l2x + ...) = min(x'Mx) = min(x' lambda x) ???
+
+% calculate vanishing point at x
+M_x = zeros(3, 3);
+for i = 1:size(line_xaxes, 1)
+    p = [line_xaxes(i, 1); line_xaxes(i, 3); w];
+    q = [line_xaxes(i, 2); line_xaxes(i, 4); w];
+    l = cross(p, q);
+    M_x = M_x + l * l';
+end
+[V, D] = eig(M_x);
+vp_x = V(:, 1);
+vp_x = vp_x / vp_x(3)
+plot(vp_x(1), vp_x(2), 'ro'); hold on;
+text(vp_x(1), vp_x(2), 'vp_x'); hold on;
+drawline_vp(vp_x, line_xaxes, 'r-');
+
+% calculate vanishing point at y
+M_y = zeros(3, 3);
+for i = 1:size(line_yaxes, 1)
+    p = [line_yaxes(i, 1); line_yaxes(i, 3); w];
+    q = [line_yaxes(i, 2); line_yaxes(i, 4); w];
+    l = cross(p, q);
+    M_y = M_y + l * l';
+end
+[V, D] = eig(M_y);
+vp_y = V(:, 1);
+vp_y = vp_y / vp_y(3)
+plot(vp_y(1), vp_y(2), 'ro'); hold on;
+text(vp_y(1), vp_y(2), 'vp_y'); hold on;
+drawline_vp(vp_y, line_yaxes, 'r-');
+
+% calculate vanishing point at z
+M_z = zeros(3, 3);
+for i = 1:size(line_zaxes, 1)
+    p = [line_zaxes(i, 1); line_zaxes(i, 3); w];
+    q = [line_zaxes(i, 2); line_zaxes(i, 4); w];
+    l = cross(p, q);
+    M_z = M_z + l * l';
+end
+[V, D] = eig(M_z);
+vp_z = V(:, 1);
+vp_z = vp_z / vp_z(3)
+plot(vp_z(1), vp_z(2), 'ro'); hold on;
+text(vp_z(1), vp_z(2), 'vp_z'); hold on;
+drawline_vp(vp_z, line_zaxes, 'r-');
+
+% calculate vl_xy, vl_xz, vl_yz
+vl_xy = cross(vp_x, vp_y);
+vl_xz = cross(vp_x, vp_z);
+vl_yz = cross(vp_y, vp_z);
+
+% draw three lines between vanishing points at x,y,z
+x = [vp_x(1), vp_y(1), vp_x(1), vp_z(1), vp_y(1), vp_z(1)];
+y = [vp_x(2), vp_y(2), vp_x(2), vp_z(2), vp_y(2), vp_z(2)];
+plot(x, y, 'c-');
+
+% output value
+disp(vp_x');
+disp(vp_y');
+disp(vp_z');
 
 %%
 function computeH_Callback(hObject, eventdata, handles)
@@ -192,12 +268,12 @@ line_xaxes = [];
 line_yaxes = [];
 line_zaxes = [];
 img_ori = [];
-filename = 'box_small';
+filename = 'box_sample';
 figure(2);
 hold off;
-clf;
+clf;  
 
 %%
 function exit_Callback(hObject, eventdata, handles)
-    close;
+    close all;
 %%
