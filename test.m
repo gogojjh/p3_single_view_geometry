@@ -1,5 +1,7 @@
-clear;
-a=[1,2,3;2,4,6];
-if isempty(a) == 1
-    return;
-end
+figure;
+mouse = impoint(gca);
+x = getPosition(mouse)
+mouse = impoint(gca);
+y = getPosition(mouse)
+mouse = impoint(gca);
+z = getPosition(mouse)

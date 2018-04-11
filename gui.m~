@@ -311,7 +311,7 @@ for i=2:length(alpha)
         [int2str(alpha(i)), 'px'], 'w', 'FontSize', 20);
 end
 
-%% TODO: set points manually
+%%
 function Compute3DModel_Callback(hObject, eventdata, handles)
 global img_ori;
 global vp_x;
@@ -382,19 +382,35 @@ global img_ori;
 global selected_point_fig;
 global H;
 
-[x1, x2, x3, X1, X2, X3] = splitplane(x_image, X_world);
-X1(:,2) = []; X2(:,1) = []; X3(:,z) = [];
-H1 = H(1:3, :); H2 = H(4:6, :); H3 = H(7:9, :);
+% draw the texture map, to X, find its corresponding x(rgb) through H
+X_world(1:4,[2,3]) = X_world(1:4,[3,2]);
+X_world(5:8,[1,3]) = X_world(5:8,[1,3]);
 
-texture_map_1 = computeTMap(X1, H1, img_ori);
-figure(selected_point_fig + 1); imshow(texture_map_1); hold on;
-
-texture_map_2 = computeTMap(X2, H2, img_ori);
-figure(selected_point_fig + 2); imshow(texture_map_2); hold on;
-
-texture_map_3 = computeTMap(X3, H3, img_ori);
-figure(selected_point_fig + 3); imshow(texture_map_3); hold on;
-
+for i = 1:floor(size(X_world, 1) / 4)
+    X = X_world((i-1)*4+1:i*4, :);
+    for j = 1:size(X,1)
+        X(j,:) = X(j,:) ./ X(j,3);
+    end
+    X0 = floor(min(X(:,1))); X1 = floor(max(X(:,1)));
+    Y0 = floor(min(X(:,2))); Y1 = floor(max(X(:,2)));
+    texture = zeros(Y0, X0, size(img_ori, 3));
+    Homo = H((i-1)*3+1:3*i, :);
+    for j = Y0:Y1
+        for k = X0:X1
+            x = Homo * [k; j; 1];
+            x = x / x(normal_item);
+            x_floor = floor(x);
+            dx = x(1) - x_floor(1);
+            dy = x(2) - x_floor(2);
+            texture(k-X0+1, j-Y0+1, :) = (1-dx)*(1-dy)*img_ori(x_floor(1), x_floor(2), :) ...
+                + dx*(1-dy)*img_ori(x_floor(1)+1, x_floor(2), :) ...
+                + (1-dx)*dy*img_ori(x_floor(1), x_floor(2)+1, :) ...
+                + dx*dy*img_ori(x_floor(1)+1, x_floor(2)+1, :);
+        end
+    end
+    figure(selected_point_fig + i);
+    imshow(texture);
+    hold on;
 end
 
 %%
