@@ -71,6 +71,7 @@ global refer_points;
 global gui_fig;
 global image_fig;
 global vp_fig;
+global rp_fig;
 global selected_point_fig;
 global vp_x;
 global vp_y;
@@ -88,17 +89,24 @@ end
 gui_fig = 1;
 image_fig = 2;
 vp_fig = 3;
-selected_point_fig = 4;
+rp_fig = 4;
+selected_point_fig = 5;
+
 
 % draw existing points and lines
 figure(image_fig);
 imshow(img_ori); hold on;
 drawallline(line_xaxes, line_yaxes, line_zaxes);
-drawreferpoint(refer_points, 'w--', 3, 20);
-for i=2:length(alpha)
-    text((refer_points(1,1)+refer_points(i,1))/2, ...
-        (refer_points(1,2)+refer_points(i,2))/2, ...,
-        [int2str(alpha(i)), 'px'], 'Color', 'w', 'FontSize', 20);
+
+if ~isempty(refer_points)
+    figure(rp_fig);
+    imshow(img_ori); hold on;
+    drawreferpoint(refer_points, 'w--', 3, 20);
+    for i=2:length(alpha)
+        text((refer_points(1,1)+refer_points(i,1))/2, ...
+            (refer_points(1,2)+refer_points(i,2))/2, ...,
+            [int2str(alpha(i)), 'px'], 'Color', 'w', 'FontSize', 20);
+    end
 end
 
 figure(vp_fig);
@@ -199,6 +207,7 @@ global x_image;
 global X_world;
 global H;
 global filename;
+
 mat_name = ['param/', filename, '_line_xyz.mat'];
 save(mat_name, 'line_xaxes', 'line_yaxes', 'line_zaxes', ...
     'vp_x', 'vp_y', 'vp_z', 'vl_xy', 'vl_xz', 'vl_yz', ...
@@ -293,10 +302,12 @@ disp(vp_z');
 %%
 function DefineRP_Callback(hObject, eventdata, handles)
 disp("[INFO] DefineRP_Callback");
-global image_fig;
+global img_ori;
+global rp_fig;
 global refer_points;
 global alpha;
-figure(image_fig);
+figure(rp_fig); hold off;
+imshow(img_ori); hold on;
 refer_points = [];
 for i=1:4
     mouse = impoint(gca);
@@ -311,7 +322,7 @@ for i=2:length(alpha)
         [int2str(alpha(i)), 'px'], 'w', 'FontSize', 20);
 end
 
-%% TODO: set points manually
+%% TODO: set points manual
 function Compute3DModel_Callback(hObject, eventdata, handles)
 global img_ori;
 global vp_x;
@@ -324,9 +335,9 @@ global refer_points;
 global x_image;
 global X_world;
 global alpha;
-global selected_point_fig;
+global rp_fig;
 
-figure(selected_point_fig); 
+figure(rp_fig); 
 imshow(img_ori); hold on;
 drawreferpoint(refer_points, 'w--', 1, 20); hold on;
 
@@ -369,33 +380,33 @@ global H;
 
 [x1, x2, x3, X1, X2, X3] = splitplane(x_image, X_world);
 H1 = computeHomography(x1, X1); 
-H2 = computeHomography(x1, X1); 
-H3 = computeHomography(x1, X1); 
+H2 = computeHomography(x2, X2); 
+H3 = computeHomography(x3, X3); 
 H = [H1; H2; H3];
-
-end
 
 %%
 function createTMap_Callback(hObject, eventdata, handles)
+global x_image;
 global X_world;
 global img_ori;
 global selected_point_fig;
 global H;
 
 [x1, x2, x3, X1, X2, X3] = splitplane(x_image, X_world);
-X1(:,2) = []; X2(:,1) = []; X3(:,z) = [];
 H1 = H(1:3, :); H2 = H(4:6, :); H3 = H(7:9, :);
 
-texture_map_1 = computeTMap(X1, H1, img_ori);
+% xz
+texture_map_1 = computeTMap(x1, X1, H1, img_ori);
 figure(selected_point_fig + 1); imshow(texture_map_1); hold on;
 
-texture_map_2 = computeTMap(X2, H2, img_ori);
+% yz
+texture_map_2 = computeTMap(x2, X2, H2, img_ori);
 figure(selected_point_fig + 2); imshow(texture_map_2); hold on;
 
-texture_map_3 = computeTMap(X3, H3, img_ori);
+% xy
+texture_map_3 = computeTMap(x3, X3, H3, img_ori);
 figure(selected_point_fig + 3); imshow(texture_map_3); hold on;
 
-end
 
 %%
 function outputVRML_Callback(hObject, eventdata, handles)
