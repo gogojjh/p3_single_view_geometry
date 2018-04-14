@@ -80,6 +80,8 @@ global alpha;
 global x_image;
 global X_world;
 global H;
+
+filename = 'box_small';
 img_ori = imread(['image/', filename, '.png']);
 mat_name = ['param/', filename, '_line_xyz.mat'];
 if exist(mat_name,'file') ~= 0
@@ -207,6 +209,7 @@ global x_image;
 global X_world;
 global H;
 global filename;
+
 mat_name = ['param/', filename, '_line_xyz.mat'];
 save(mat_name, 'line_xaxes', 'line_yaxes', 'line_zaxes', ...
     'vp_x', 'vp_y', 'vp_z', 'vl_xy', 'vl_xz', 'vl_yz', ...
@@ -394,16 +397,17 @@ global H;
 [x1, x2, x3, X1, X2, X3] = splitplane(x_image, X_world);
 H1 = H(1:3, :); H2 = H(4:6, :); H3 = H(7:9, :);
 
-% 
-texture_map_1 = computeTMap(X1, H1, img_ori);
+% xz
+texture_map_1 = computeTMap(x1, X1, H1, img_ori);
 figure(selected_point_fig + 1); imshow(texture_map_1); hold on;
 
-texture_map_2 = computeTMap(X2, H2, img_ori);
+% yz
+texture_map_2 = computeTMap(x2, X2, H2, img_ori);
 figure(selected_point_fig + 2); imshow(texture_map_2); hold on;
 
-texture_map_3 = computeTMap(X3, H3, img_ori);
+% xy
+texture_map_3 = computeTMap(x3, X3, H3, img_ori);
 figure(selected_point_fig + 3); imshow(texture_map_3); hold on;
-
 
 %%
 function outputVRML_Callback(hObject, eventdata, handles)
@@ -435,7 +439,7 @@ x_image = [];
 X_world = [];
 H = [];
 filename = 'box_sample';
-clf;  
+disp("[SYSTEM] RESET");
 
 %%
 function reset3dmodel_Callback(hObject, eventdata, handles)

@@ -1,8 +1,12 @@
 function H = computeHomography(x, X)
+% X = Hx: 
+% X 3d coordinate
+% x 2d coordinate
 u1 = x(1,1); v1 = x(1,2);
 u2 = x(2,1); v2 = x(2,2);
 u3 = x(3,1); v3 = x(3,2);
 u4 = x(4,1); v4 = x(4,2);
+
 x1 = X(1,1); y1 = X(1,2);
 x2 = X(2,1); y2 = X(2,2);
 x3 = X(3,1); y3 = X(3,2);
@@ -22,8 +26,9 @@ A = [u1, v1, 1, 0, 0, 0, -u1*x1, -v1*x1, -x1;
 % h = [A\b; 1];
 % H = reshape(h, 3, 3); % X=Hx
 
-% X = Hx
-[~, ~, d] = svd(A'*A); % ???
-H = reshape(d(:,1), 3, 3); 
- 
+[~, ~, d] = svd(A'*A); 
+h = d(:,9);
+h = h(:) ./ h(9); % normalize
+H = reshape(h, 3, 3)'; % reshape is column-prior
+
 end

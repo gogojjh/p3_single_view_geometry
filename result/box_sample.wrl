@@ -1,0 +1,77 @@
+#VRML V2.0 utf8
+#PixelTexture example
+
+Shape{
+    appearance Appearance {
+        texture ImageTexture {
+            url "box_sample_1.png"
+                repeatS FALSE
+                repeatT FALSE
+        }
+
+    }
+    geometry IndexedFaceSet {
+        coord Coordinate {
+            point [
+            0  0   0                
+            256 0 0
+            256 0 331
+            0 0 331
+            ]
+        }
+        coordIndex [0, 1, 2, 3]
+        texCoord TextureCoordinate{
+            point[0 0, 1 0, 1 1, 0 1]
+        }
+    }
+}
+
+Shape{
+    appearance Appearance {
+        texture ImageTexture {
+            url "box_sample_2.png"
+                repeatS FALSE
+                repeatT FALSE
+        }
+    }
+    geometry IndexedFaceSet {
+        coord Coordinate {
+            point [
+            0  370 0
+            0  0  0
+            0  0  340
+            0  370 340
+            ]
+        }
+        coordIndex [0, 1, 2, 3]
+            texCoord TextureCoordinate{
+                point[0 0, 1 0, 1 1, 0 1]
+            }
+    }
+}
+
+
+Shape{
+    appearance Appearance {
+        texture ImageTexture {
+            url "box_sample_3.png"
+                repeatS FALSE
+                repeatT FALSE
+        }
+    }
+    geometry IndexedFaceSet {
+        coord Coordinate {
+            point [
+                0 370 342 
+                0 0  342
+                256 0  340
+                257 379 346
+                ]
+        }
+        coordIndex [0, 1, 2, 3]
+            texCoord TextureCoordinate{
+                point[0 0, 1 0, 1 1, 0 1]
+            }
+    }
+}
+
