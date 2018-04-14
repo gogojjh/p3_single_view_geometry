@@ -41,3 +41,6 @@
 ## Remaining Problems
 1. not well-structured reconstruction
 2. not many testing images
+
+## Useful Link
+1. CMU courses and good results: http://www.cs.cmu.edu/~ph/869/results/zhang/asst3/index.html
