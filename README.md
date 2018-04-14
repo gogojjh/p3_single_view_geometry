@@ -31,6 +31,8 @@
     > <img src="result/box_sample_2.png" width=200>
     - XY
     > <img src="result/box_sample_3.png" width=200>
+5. 3D model
+> <img src="result/3d_model.png" width=300>
 
 ## Demo Video
 [![Watch the video](https://raw.github.com/GabLeRoux/WebMole/master/ressources/WebMole_Youtube_Video.png)](https://youtu.be/yMn7MwHfUwQ)
